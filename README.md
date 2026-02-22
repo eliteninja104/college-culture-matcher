@@ -20,19 +20,22 @@ The app has two paths:
 
 ## Quick Start
 
+**You only need [Python 3.10+](https://www.python.org/downloads/) installed.** (Check "Add Python to PATH" during install.)
+
+### Option A: One-Click (Easiest)
+1. Download/unzip this project
+2. **Windows:** Double-click `run.bat`
+3. **Mac/Linux:** Open terminal in the folder, run `./run.sh`
+
+It installs everything and opens the app in your browser automatically.
+
+### Option B: Manual
 ```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/college-culture-matcher.git
-cd college-culture-matcher
-
-# Install dependencies (Python 3.10+ required)
 pip install -r requirements.txt
-
-# Run the app
 streamlit run app.py
 ```
 
-The app will open in your browser at `http://localhost:8501`.
+The app opens at `http://localhost:8501`.
 
 ## Features
 
