@@ -4,6 +4,10 @@
 
 Built for **Bama Builds Hackathon** — Data Science Track
 
+## [Try It Live](https://college-culture-matcher-mpxqcqxo3t2jvjss7omjsx.streamlit.app/)
+
+**No install needed.** Click the link above to use the app right now in your browser.
+
 ---
 
 ## The Problem
@@ -18,7 +22,7 @@ The app has two paths:
 - **Intangibles** — A 10-question culture quiz that matches you to schools based on vibe, social life, academics, diversity, and more
 - **Tangibles** — An interactive career map showing salary, job markets, and cost of living by major across 16 US metro areas
 
-## Quick Start
+## Run Locally (Optional)
 
 **You only need [Python 3.10+](https://www.python.org/downloads/) installed.** (Check "Add Python to PATH" during install.)
 
