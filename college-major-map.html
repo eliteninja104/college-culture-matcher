@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MajorMap — Find Your Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #7c6cfa;
+    --accent2: #fa6c9a;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --low: #4ade80;
+    --mid: #facc15;
+    --high: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span { font-weight: 400; opacity: 0.7; }
+
+  .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .major-btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .major-btn .icon {
+    font-size: 1rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .major-btn:hover {
+    background: var(--surface2);
+    border-color: var(--border);
+  }
+
+  .major-btn.active {
+    background: rgba(124, 108, 250, 0.15);
+    border-color: var(--accent);
+    color: #c4beff;
+    font-weight: 500;
+  }
+
+  /* LEGEND */
+  .legend-section {
+    padding: 20px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-gradient {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--low), var(--mid), var(--high));
+    margin: 6px 0 4px;
+  }
+
+  .legend-gradient-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .size-legend {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .size-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .size-dot {
+    background: rgba(124,108,250,0.5);
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+  }
+
+  /* INFO PANEL */
+  .info-panel {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    z-index: 500;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: all 0.25s ease;
+    pointer-events: none;
+  }
+
+  .info-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .info-city {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .info-major-tag {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .stat-value.green { color: var(--low); }
+  .stat-value.yellow { color: var(--mid); }
+  .stat-value.red { color: var(--high); }
+
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+
+  .close-btn:hover { color: var(--text); }
+
+  /* MAP */
+  #map {
+    flex: 1;
+    position: relative;
+  }
+
+  .leaflet-container {
+    background: #0d1117 !important;
+  }
+
+  /* PROMPT */
+  .map-prompt {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18,18,26,0.92);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 10px 22px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    z-index: 400;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .map-prompt.hidden { opacity: 0; }
+
+  /* Pulse animation */
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Major<span>Map</span></div>
+  <div class="subtitle">Data-Driven Career Geography</div>
+  <div style="font-size:0.75rem;color:var(--muted);">Freshmen Edition · 2024</div>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Choose Your Major</div>
+      <div id="majorList"></div>
+    </div>
+    <div class="legend-section">
+      <div class="sidebar-label">Color = Adjusted Salary</div>
+      <div class="legend-gradient"></div>
+      <div class="legend-gradient-labels">
+        <span>Lower</span>
+        <span>Average</span>
+        <span>Higher</span>
+      </div>
+      <div style="margin-top:18px;">
+        <div class="sidebar-label">Circle Size = Job Volume</div>
+        <div class="size-legend">
+          <div class="size-dot-wrap">
+            <div class="size-dot" style="width:14px;height:14px;"></div>
+            <span>Low</span>
+          </div>
+          <div class="size-dot-wrap">
+            <div class="size-dot" style="width:24px;height:24px;"></div>
+            <span>Mid</span>
+          </div>
+          <div class="size-dot-wrap">
+            <div class="size-dot" style="width:38px;height:38px;"></div>
+            <span>High</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px;font-size:0.72rem;color:var(--muted);line-height:1.6;">
+        Salary adjusted for regional cost of living. Circle size reflects job postings relative to metro population.
+      </div>
+    </div>
+  </div>
+
+  <div id="map">
+    <div class="info-panel" id="infoPanel">
+      <button class="close-btn" id="closeBtn">✕</button>
+      <div class="info-city" id="infoCity">—</div>
+      <div class="info-major-tag" id="infoMajor">—</div>
+      <div class="stat-row">
+        <span class="stat-label">Adj. Median Salary</span>
+        <span class="stat-value" id="infoSalary">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Cost of Living Index</span>
+        <span class="stat-value" id="infoCOL">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Job Postings / 100k</span>
+        <span class="stat-value" id="infoJobs">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Top Employers</span>
+        <span class="stat-value" id="infoEmployers" style="font-size:0.8rem;font-weight:500;text-align:right;max-width:160px;">—</span>
+      </div>
+    </div>
+    <div class="map-prompt" id="mapPrompt">← Select a major to explore opportunities</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const majors = [
+  { id: 'cs',        label: 'Computer Science',    icon: '💻' },
+  { id: 'nursing',   label: 'Nursing / Health',    icon: '🏥' },
+  { id: 'finance',   label: 'Finance / Business',  icon: '📈' },
+  { id: 'mecheng',   label: 'Mechanical Eng.',      icon: '⚙️' },
+  { id: 'education', label: 'Education',            icon: '📚' },
+  { id: 'biology',   label: 'Biology / Pre-Med',   icon: '🔬' },
+  { id: 'marketing', label: 'Marketing / Comm.',   icon: '📣' },
+  { id: 'psychology',label: 'Psychology',           icon: '🧠' },
+  { id: 'polisci',   label: 'Political Science',   icon: '⚖️' },
+  { id: 'design',    label: 'Design / UX',         icon: '🎨' },
+];
+
+// Metro areas: [lat, lng, city, col_index (100=avg), raw_salary_by_major, jobs_per_100k_by_major, top_employers]
+// col_index: 100 = national avg. Higher = more expensive.
+// adj_salary = raw_salary / (col_index / 100)
+const metros = [
+  { city: 'San Francisco, CA',  lat: 37.77, lng: -122.42, col: 194,
+    data: {
+      cs:        { raw: 165000, jobs: 310, emp: 'Google, Salesforce, Stripe' },
+      nursing:   { raw: 95000,  jobs: 88,  emp: 'UCSF, Sutter Health' },
+      finance:   { raw: 130000, jobs: 140, emp: 'Wells Fargo, BlackRock' },
+      mecheng:   { raw: 125000, jobs: 95,  emp: 'Tesla, Apple' },
+      education: { raw: 72000,  jobs: 45,  emp: 'SFUSD, Stanford' },
+      biology:   { raw: 115000, jobs: 130, emp: 'Genentech, UCSF' },
+      marketing: { raw: 98000,  jobs: 120, emp: 'Salesforce, Lyft' },
+      psychology:{ raw: 75000,  jobs: 60,  emp: 'UCSF, Kaiser' },
+      polisci:   { raw: 85000,  jobs: 55,  emp: 'City Gov, Law Firms' },
+      design:    { raw: 110000, jobs: 145, emp: 'Figma, Adobe, Airbnb' },
+    }
+  },
+  { city: 'Seattle, WA',       lat: 47.61, lng: -122.33, col: 162,
+    data: {
+      cs:        { raw: 155000, jobs: 280, emp: 'Amazon, Microsoft, Zillow' },
+      nursing:   { raw: 88000,  jobs: 95,  emp: 'UW Medicine, Swedish' },
+      finance:   { raw: 110000, jobs: 100, emp: 'Washington Federal, Starbucks' },
+      mecheng:   { raw: 115000, jobs: 130, emp: 'Boeing, Amazon' },
+      education: { raw: 65000,  jobs: 50,  emp: 'Seattle Public Schools' },
+      biology:   { raw: 100000, jobs: 100, emp: 'Fred Hutch, UW' },
+      marketing: { raw: 88000,  jobs: 105, emp: 'Amazon, Expedia' },
+      psychology:{ raw: 70000,  jobs: 65,  emp: 'UW, VA Hospital' },
+      polisci:   { raw: 80000,  jobs: 50,  emp: 'City of Seattle, NGOs' },
+      design:    { raw: 105000, jobs: 130, emp: 'Amazon, Microsoft' },
+    }
+  },
+  { city: 'New York, NY',      lat: 40.71, lng: -74.01, col: 187,
+    data: {
+      cs:        { raw: 150000, jobs: 250, emp: 'Google, Goldman Sachs, Meta' },
+      nursing:   { raw: 100000, jobs: 110, emp: 'NYC Health, NYP' },
+      finance:   { raw: 160000, jobs: 290, emp: 'JPMorgan, Goldman Sachs' },
+      mecheng:   { raw: 110000, jobs: 80,  emp: 'GE, Consolidated Edison' },
+      education: { raw: 75000,  jobs: 60,  emp: 'NYC DOE, Teach For America' },
+      biology:   { raw: 105000, jobs: 120, emp: 'Pfizer, Columbia Med' },
+      marketing: { raw: 100000, jobs: 180, emp: 'WPP, Publicis, L\'Oreal' },
+      psychology:{ raw: 80000,  jobs: 90,  emp: 'NYU, Bellevue Hospital' },
+      polisci:   { raw: 90000,  jobs: 100, emp: 'NYC Gov, UN, Law Firms' },
+      design:    { raw: 105000, jobs: 160, emp: 'R/GA, Huge, Pentagram' },
+    }
+  },
+  { city: 'Austin, TX',        lat: 30.27, lng: -97.74, col: 121,
+    data: {
+      cs:        { raw: 135000, jobs: 240, emp: 'Dell, Tesla, Apple' },
+      nursing:   { raw: 72000,  jobs: 100, emp: 'St. David\'s, Ascension' },
+      finance:   { raw: 95000,  jobs: 120, emp: 'Indeed, Charles Schwab' },
+      mecheng:   { raw: 105000, jobs: 110, emp: 'Tesla, Samsung Austin' },
+      education: { raw: 52000,  jobs: 55,  emp: 'Austin ISD, UT Austin' },
+      biology:   { raw: 82000,  jobs: 90,  emp: 'UT Austin, Bio-techne' },
+      marketing: { raw: 78000,  jobs: 130, emp: 'Dell, Indeed, HomeAway' },
+      psychology:{ raw: 60000,  jobs: 70,  emp: 'UT Health Austin' },
+      polisci:   { raw: 70000,  jobs: 65,  emp: 'State Capitol, Lobbying Firms' },
+      design:    { raw: 88000,  jobs: 120, emp: 'Whole Foods, GSD&M' },
+    }
+  },
+  { city: 'Chicago, IL',       lat: 41.88, lng: -87.63, col: 117,
+    data: {
+      cs:        { raw: 125000, jobs: 190, emp: 'Motorola, Groupon, Braintree' },
+      nursing:   { raw: 75000,  jobs: 100, emp: 'Northwestern Medicine, Rush' },
+      finance:   { raw: 130000, jobs: 200, emp: 'CME Group, Citadel' },
+      mecheng:   { raw: 100000, jobs: 100, emp: 'Boeing, Caterpillar, Abbott' },
+      education: { raw: 60000,  jobs: 65,  emp: 'CPS, DePaul' },
+      biology:   { raw: 85000,  jobs: 100, emp: 'AbbVie, Northwestern Med' },
+      marketing: { raw: 82000,  jobs: 140, emp: 'Orbitz, Morningstar' },
+      psychology:{ raw: 62000,  jobs: 75,  emp: 'UChicago, Rush Hospital' },
+      polisci:   { raw: 78000,  jobs: 90,  emp: 'City of Chicago, Law Firms' },
+      design:    { raw: 82000,  jobs: 100, emp: 'Leo Burnett, FCB' },
+    }
+  },
+  { city: 'Houston, TX',       lat: 29.76, lng: -95.37, col: 108,
+    data: {
+      cs:        { raw: 118000, jobs: 160, emp: 'HP, CenterPoint Energy' },
+      nursing:   { raw: 70000,  jobs: 115, emp: 'Houston Methodist, MD Anderson' },
+      finance:   { raw: 105000, jobs: 140, emp: 'JP Morgan Chase, Shell' },
+      mecheng:   { raw: 115000, jobs: 200, emp: 'ExxonMobil, Chevron, Shell' },
+      education: { raw: 50000,  jobs: 55,  emp: 'HISD, Houston CC' },
+      biology:   { raw: 88000,  jobs: 105, emp: 'MD Anderson, UTHealth' },
+      marketing: { raw: 75000,  jobs: 110, emp: 'Sysco, Group 1 Auto' },
+      psychology:{ raw: 60000,  jobs: 65,  emp: 'UTHealth, VA Medical Center' },
+      polisci:   { raw: 72000,  jobs: 60,  emp: 'Harris County, Law Firms' },
+      design:    { raw: 75000,  jobs: 80,  emp: 'C&D, Design Bridge' },
+    }
+  },
+  { city: 'Denver, CO',        lat: 39.74, lng: -104.98, col: 130,
+    data: {
+      cs:        { raw: 125000, jobs: 180, emp: 'Arrow Electronics, Ibotta' },
+      nursing:   { raw: 78000,  jobs: 95,  emp: 'UCHealth, HealthOne' },
+      finance:   { raw: 95000,  jobs: 105, emp: 'Charles Schwab, TIAA' },
+      mecheng:   { raw: 100000, jobs: 105, emp: 'Lockheed, Ball Aerospace' },
+      education: { raw: 55000,  jobs: 60,  emp: 'Denver Public Schools, CU Denver' },
+      biology:   { raw: 82000,  jobs: 85,  emp: 'CU Anschutz, Env. firms' },
+      marketing: { raw: 80000,  jobs: 110, emp: 'REI, VF Corporation' },
+      psychology:{ raw: 64000,  jobs: 75,  emp: 'CU Anschutz, Centura Health' },
+      polisci:   { raw: 70000,  jobs: 60,  emp: 'Colorado Gov, NGOs' },
+      design:    { raw: 85000,  jobs: 105, emp: 'Cactus, Made' },
+    }
+  },
+  { city: 'Boston, MA',        lat: 42.36, lng: -71.06, col: 162,
+    data: {
+      cs:        { raw: 145000, jobs: 230, emp: 'HubSpot, Wayfair, MIT' },
+      nursing:   { raw: 90000,  jobs: 100, emp: 'Mass General, Dana-Farber' },
+      finance:   { raw: 130000, jobs: 160, emp: 'Fidelity, State Street, Putnam' },
+      mecheng:   { raw: 115000, jobs: 120, emp: 'Raytheon, GE Aviation, MIT LL' },
+      education: { raw: 65000,  jobs: 55,  emp: 'BPS, Teach For America' },
+      biology:   { raw: 110000, jobs: 160, emp: 'Broad Institute, Biogen, Novartis' },
+      marketing: { raw: 92000,  jobs: 120, emp: 'HubSpot, Wayfair, Brightcove' },
+      psychology:{ raw: 72000,  jobs: 80,  emp: 'Harvard Med, McLean' },
+      polisci:   { raw: 85000,  jobs: 80,  emp: 'State House, Policy Groups' },
+      design:    { raw: 95000,  jobs: 115, emp: 'IDEO, Communispace' },
+    }
+  },
+  { city: 'Washington, DC',    lat: 38.91, lng: -77.04, col: 158,
+    data: {
+      cs:        { raw: 140000, jobs: 220, emp: 'Booz Allen, SAIC, Leidos' },
+      nursing:   { raw: 88000,  jobs: 95,  emp: 'NIH, MedStar, Georgetown' },
+      finance:   { raw: 120000, jobs: 160, emp: 'World Bank, IMF, Freddie Mac' },
+      mecheng:   { raw: 115000, jobs: 130, emp: 'Northrop, Raytheon, MITRE' },
+      education: { raw: 72000,  jobs: 70,  emp: 'DCPS, Sidwell Friends' },
+      biology:   { raw: 105000, jobs: 140, emp: 'NIH, FDA, Georgetown Med' },
+      marketing: { raw: 88000,  jobs: 120, emp: 'Gartner, Advisory Board' },
+      psychology:{ raw: 80000,  jobs: 95,  emp: 'NIH, Walter Reed, APA' },
+      polisci:   { raw: 95000,  jobs: 200, emp: 'Congress, Think Tanks, NGOs' },
+      design:    { raw: 90000,  jobs: 100, emp: 'IDEO, ICF, Booz Allen DX' },
+    }
+  },
+  { city: 'Atlanta, GA',       lat: 33.75, lng: -84.39, col: 109,
+    data: {
+      cs:        { raw: 118000, jobs: 175, emp: 'NCR, Georgia Tech, Cox' },
+      nursing:   { raw: 68000,  jobs: 105, emp: 'Emory, Piedmont, Grady' },
+      finance:   { raw: 100000, jobs: 130, emp: 'SunTrust, Fiserv' },
+      mecheng:   { raw: 100000, jobs: 95,  emp: 'Delta, Chick-fil-A, Georgia-Pacific' },
+      education: { raw: 50000,  jobs: 65,  emp: 'APS, Fulton County Schools' },
+      biology:   { raw: 80000,  jobs: 95,  emp: 'Emory, CDC, Rollins SPH' },
+      marketing: { raw: 72000,  jobs: 120, emp: 'Coca-Cola, UPS, Home Depot' },
+      psychology:{ raw: 58000,  jobs: 70,  emp: 'Grady, Emory Healthcare' },
+      polisci:   { raw: 68000,  jobs: 75,  emp: 'GA State Gov, Consulates' },
+      design:    { raw: 72000,  jobs: 90,  emp: 'The Home Depot, Southpaw' },
+    }
+  },
+  { city: 'Los Angeles, CA',   lat: 34.05, lng: -118.24, col: 172,
+    data: {
+      cs:        { raw: 145000, jobs: 210, emp: 'Snap, SpaceX, Riot Games' },
+      nursing:   { raw: 98000,  jobs: 100, emp: 'Cedars-Sinai, Kaiser LA' },
+      finance:   { raw: 115000, jobs: 140, emp: 'JPM, City National Bank' },
+      mecheng:   { raw: 120000, jobs: 110, emp: 'SpaceX, Boeing, Northrop' },
+      education: { raw: 70000,  jobs: 55,  emp: 'LAUSD, UCLA' },
+      biology:   { raw: 105000, jobs: 110, emp: 'UCLA Health, Amgen, BioAtla' },
+      marketing: { raw: 95000,  jobs: 160, emp: 'NBCUniversal, Disney, Warner' },
+      psychology:{ raw: 72000,  jobs: 80,  emp: 'UCLA, Cedars-Sinai' },
+      polisci:   { raw: 80000,  jobs: 75,  emp: 'LA City, Film Unions, Law' },
+      design:    { raw: 100000, jobs: 140, emp: 'Disney, Mattel, Beats' },
+    }
+  },
+  { city: 'Miami, FL',         lat: 25.77, lng: -80.19, col: 120,
+    data: {
+      cs:        { raw: 110000, jobs: 135, emp: 'Chewy, Carnival Tech, World Fuel' },
+      nursing:   { raw: 65000,  jobs: 105, emp: 'Jackson Health, Baptist Health' },
+      finance:   { raw: 105000, jobs: 155, emp: 'Bank of America, KKR (Miami)' },
+      mecheng:   { raw: 95000,  jobs: 70,  emp: 'Spirit Airlines, Harris Corp' },
+      education: { raw: 48000,  jobs: 55,  emp: 'Miami-Dade Schools, FIU' },
+      biology:   { raw: 78000,  jobs: 80,  emp: 'UM Miller, Jackson Health' },
+      marketing: { raw: 72000,  jobs: 115, emp: 'Royal Caribbean, Lennar Corp' },
+      psychology:{ raw: 58000,  jobs: 65,  emp: 'Jackson Memorial, UM' },
+      polisci:   { raw: 68000,  jobs: 65,  emp: 'Miami-Dade Gov, OAS' },
+      design:    { raw: 75000,  jobs: 95,  emp: 'Telemundo, Carnival, MDCA' },
+    }
+  },
+  { city: 'Phoenix, AZ',       lat: 33.45, lng: -112.07, col: 106,
+    data: {
+      cs:        { raw: 112000, jobs: 145, emp: 'Intel, GoDaddy, Microchip' },
+      nursing:   { raw: 68000,  jobs: 110, emp: 'Banner Health, Dignity Health' },
+      finance:   { raw: 92000,  jobs: 120, emp: 'Chase, Vanguard, American Express' },
+      mecheng:   { raw: 100000, jobs: 100, emp: 'Intel, Honeywell, Lucid Motors' },
+      education: { raw: 48000,  jobs: 60,  emp: 'PVUSD, ASU, Grand Canyon Univ' },
+      biology:   { raw: 78000,  jobs: 80,  emp: 'Mayo Clinic AZ, Dignity Health' },
+      marketing: { raw: 70000,  jobs: 100, emp: 'Go Daddy, PetSmart, Avnet' },
+      psychology:{ raw: 56000,  jobs: 65,  emp: 'Banner Behavioral Health' },
+      polisci:   { raw: 64000,  jobs: 55,  emp: 'Arizona State Gov, ASU' },
+      design:    { raw: 72000,  jobs: 88,  emp: 'GoDaddy, Shamrock Foods' },
+    }
+  },
+  { city: 'Minneapolis, MN',   lat: 44.98, lng: -93.27, col: 110,
+    data: {
+      cs:        { raw: 118000, jobs: 160, emp: 'Target, Best Buy, Optum' },
+      nursing:   { raw: 75000,  jobs: 100, emp: 'Mayo Clinic, Allina Health' },
+      finance:   { raw: 105000, jobs: 130, emp: 'US Bancorp, Ameriprise, Allianz' },
+      mecheng:   { raw: 100000, jobs: 110, emp: '3M, Medtronic, Emerson' },
+      education: { raw: 58000,  jobs: 60,  emp: 'Minneapolis Public Schools' },
+      biology:   { raw: 92000,  jobs: 105, emp: 'Medtronic, UCare, U of M' },
+      marketing: { raw: 80000,  jobs: 110, emp: 'Target, General Mills, Cargill' },
+      psychology:{ raw: 64000,  jobs: 70,  emp: 'Allina, Hennepin Healthcare' },
+      polisci:   { raw: 72000,  jobs: 65,  emp: 'MN Legislature, MSP NGOs' },
+      design:    { raw: 82000,  jobs: 95,  emp: 'Target, General Mills, Colle McVoy' },
+    }
+  },
+  { city: 'Pittsburgh, PA',    lat: 40.44, lng: -79.99, col: 97,
+    data: {
+      cs:        { raw: 110000, jobs: 165, emp: 'Carnegie Mellon, Google, Uber ATG' },
+      nursing:   { raw: 64000,  jobs: 95,  emp: 'UPMC, AHN' },
+      finance:   { raw: 88000,  jobs: 100, emp: 'PNC Bank, BNY Mellon' },
+      mecheng:   { raw: 95000,  jobs: 110, emp: 'Westinghouse, ANSYS, Kennametal' },
+      education: { raw: 52000,  jobs: 55,  emp: 'Pittsburgh City Schools, Pitt' },
+      biology:   { raw: 82000,  jobs: 95,  emp: 'UPMC, Pitt Med, Carnegie Mellon' },
+      marketing: { raw: 70000,  jobs: 85,  emp: 'GNC, Highmark' },
+      psychology:{ raw: 58000,  jobs: 68,  emp: 'UPMC Western Psych, Pitt' },
+      polisci:   { raw: 65000,  jobs: 55,  emp: 'City of Pittsburgh, Allegheny Co.' },
+      design:    { raw: 72000,  jobs: 90,  emp: 'CMU, Pittsburgh Ballet' },
+    }
+  },
+  { city: 'Raleigh-Durham, NC',lat: 35.78, lng: -78.64, col: 107,
+    data: {
+      cs:        { raw: 118000, jobs: 170, emp: 'Cisco, IBM, Red Hat' },
+      nursing:   { raw: 66000,  jobs: 95,  emp: 'UNC Health, Duke Health' },
+      finance:   { raw: 92000,  jobs: 105, emp: 'First Citizens Bank, Fidelity' },
+      mecheng:   { raw: 98000,  jobs: 95,  emp: 'Collins Aerospace, GE Aviation' },
+      education: { raw: 50000,  jobs: 60,  emp: 'WCPSS, NC State, Duke' },
+      biology:   { raw: 95000,  jobs: 130, emp: 'Biogen, Bayer, Duke Med' },
+      marketing: { raw: 72000,  jobs: 100, emp: 'Lenovo, SAS Institute' },
+      psychology:{ raw: 60000,  jobs: 68,  emp: 'UNC, Duke, Holly Hill Hospital' },
+      polisci:   { raw: 68000,  jobs: 60,  emp: 'NC State Gov, Research Triangle NGOs' },
+      design:    { raw: 75000,  jobs: 88,  emp: 'SAS, NetApp, Citrix' },
+    }
+  },
+];
+
+// ============================================================
+// MAP INIT
+// ============================================================
+const map = L.map('map', {
+  center: [38.5, -96],
+  zoom: 4,
+  zoomControl: true,
+  attributionControl: false,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 18,
+}).addTo(map);
+
+// ============================================================
+// UI BUILD
+// ============================================================
+let activeMajor = null;
+let circles = [];
+
+function buildMajorList() {
+  const list = document.getElementById('majorList');
+  majors.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'major-btn';
+    btn.dataset.id = m.id;
+    btn.innerHTML = `<span class="icon">${m.icon}</span>${m.label}`;
+    btn.addEventListener('click', () => selectMajor(m.id));
+    list.appendChild(btn);
+  });
+}
+
+// ============================================================
+// COLOR LOGIC
+// ============================================================
+function adjSalary(metro, majorId) {
+  const d = metro.data[majorId];
+  return Math.round(d.raw / (metro.col / 100));
+}
+
+function colorFromSalary(salary, minS, maxS) {
+  const t = (salary - minS) / (maxS - minS);
+  // green -> yellow -> red
+  if (t < 0.5) {
+    const r = Math.round(74 + (250 - 74) * (t / 0.5));
+    const g = Math.round(222 + (204 - 222) * (t / 0.5));
+    const b = Math.round(128 + (21 - 128) * (t / 0.5));
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const t2 = (t - 0.5) / 0.5;
+    const r = Math.round(250 + (248 - 250) * t2);
+    const g = Math.round(204 + (113 - 204) * t2);
+    const b = Math.round(21 + (113 - 21) * t2);
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function selectMajor(id) {
+  activeMajor = id;
+  document.querySelectorAll('.major-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.id === id);
+  });
+  document.getElementById('mapPrompt').classList.add('hidden');
+  renderCircles(id);
+  closeInfo();
+}
+
+function renderCircles(majorId) {
+  // Clear existing
+  circles.forEach(c => map.removeLayer(c));
+  circles = [];
+
+  const salaries = metros.map(m => adjSalary(m, majorId));
+  const minS = Math.min(...salaries);
+  const maxS = Math.max(...salaries);
+
+  const allJobs = metros.map(m => m.data[majorId].jobs);
+  const minJ = Math.min(...allJobs);
+  const maxJ = Math.max(...allJobs);
+
+  metros.forEach((metro, i) => {
+    const s = salaries[i];
+    const j = metro.data[majorId].jobs;
+    const color = colorFromSalary(s, minS, maxS);
+    const normJ = (j - minJ) / (maxJ - minJ);
+    const radius = 30000 + normJ * 120000; // meters
+
+    const circle = L.circle([metro.lat, metro.lng], {
+      color: color,
+      fillColor: color,
+      fillOpacity: 0.35,
+      weight: 2,
+      opacity: 0.85,
+      radius: radius,
+    }).addTo(map);
+
+    circle.on('click', () => showInfo(metro, majorId, s, color));
+    circle.on('mouseover', function() {
+      this.setStyle({ fillOpacity: 0.55, weight: 3 });
+    });
+    circle.on('mouseout', function() {
+      this.setStyle({ fillOpacity: 0.35, weight: 2 });
+    });
+
+    circles.push(circle);
+  });
+}
+
+function showInfo(metro, majorId, salary, color) {
+  const panel = document.getElementById('infoPanel');
+  const majorLabel = majors.find(m => m.id === majorId).label;
+  const d = metro.data[majorId];
+
+  document.getElementById('infoCity').textContent = metro.city;
+  document.getElementById('infoMajor').textContent = majorLabel;
+
+  const salaryEl = document.getElementById('infoSalary');
+  salaryEl.textContent = '$' + salary.toLocaleString();
+  salaryEl.className = 'stat-value';
+  // relative to median: determine class
+  const allSalaries = metros.map(m => adjSalary(m, majorId));
+  const median = allSalaries.sort((a,b)=>a-b)[Math.floor(allSalaries.length/2)];
+  if (salary > median * 1.1) salaryEl.classList.add('green');
+  else if (salary < median * 0.9) salaryEl.classList.add('red');
+  else salaryEl.classList.add('yellow');
+
+  document.getElementById('infoCOL').textContent = metro.col + ' / 100';
+  document.getElementById('infoJobs').textContent = d.jobs;
+  document.getElementById('infoEmployers').textContent = d.emp;
+
+  panel.classList.add('visible');
+}
+
+function closeInfo() {
+  document.getElementById('infoPanel').classList.remove('visible');
+}
+
+document.getElementById('closeBtn').addEventListener('click', closeInfo);
+
+// ============================================================
+// INIT
+// ============================================================
+buildMajorList();
+</script>
+</body>
+</html>

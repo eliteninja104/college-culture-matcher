@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Shotgunning Problem — College Application Trends</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    padding: 40px 60px;
+    max-width: 1400px;
+    margin: auto;
+  }
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #e74c3c, #f39c12);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-top: 50px;
+    margin-bottom: 15px;
+    color: #ffffff;
+  }
+  h3 { font-size: 1.1rem; color: #8b949e; font-weight: 400; margin-bottom: 30px; }
+  .subtitle { font-size: 1.15rem; color: #8b949e; margin-bottom: 40px; }
+  hr { border: none; border-top: 1px solid #21262d; margin: 40px 0; }
+
+  /* Hero stats */
+  .stats-row {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0 40px 0;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 200px;
+    background: linear-gradient(135deg, #161b22, #1c2333);
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #e74c3c;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-number.gold { color: #f39c12; }
+  .stat-number.blue { color: #58a6ff; }
+  .stat-number.green { color: #3fb950; }
+  .stat-label {
+    font-size: 0.9rem;
+    color: #8b949e;
+    line-height: 1.4;
+  }
+
+  /* Narrative text */
+  .narrative {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    max-width: 950px;
+    margin: 20px auto;
+    color: #c9d1d9;
+  }
+  .narrative b { color: #ffffff; }
+  .narrative ul { margin: 15px 0 15px 20px; }
+  .narrative li { margin-bottom: 8px; }
+
+  /* Chart containers */
+  .chart-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .chart-description {
+    font-size: 0.95rem;
+    color: #8b949e;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+
+  /* Data table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.85rem;
+  }
+  thead { background: #161b22; }
+  th {
+    padding: 12px 10px;
+    text-align: left;
+    color: #f39c12;
+    font-weight: 700;
+    border-bottom: 2px solid #30363d;
+    position: sticky;
+    top: 0;
+    background: #161b22;
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #21262d;
+    color: #c9d1d9;
+  }
+  tr:hover td { background: #1c2333; }
+  .growth-high { color: #e74c3c; font-weight: 700; }
+  .growth-mid { color: #f39c12; font-weight: 600; }
+  .growth-low { color: #3fb950; }
+
+  /* Solution section */
+  .solution-box {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #e74c3c;
+    border-radius: 16px;
+    padding: 35px 40px;
+    margin: 30px 0;
+  }
+  .solution-box h2 { margin-top: 0; color: #f39c12; }
+
+  .source-note {
+    font-size: 0.8rem;
+    color: #484f58;
+    margin-top: 30px;
+    line-height: 1.5;
+  }
+
+  /* Color legend */
+  .legend {
+    display: flex;
+    gap: 25px;
+    margin: 15px 0;
+    font-size: 0.9rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<h1>📈 The Shotgunning Problem</h1>
+<h3>Why students are applying to more schools than ever — and why it isn't working</h3>
+<hr>
+
+<!-- ============ HERO STATS ============ -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-number">47%</div>
+    <div class="stat-label">Increase in apps per student<br>(2014 → 2025)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number gold">10.2M</div>
+    <div class="stat-label">Total Common App submissions<br>(2024-25 — first time over 10M)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number blue">6.8</div>
+    <div class="stat-label">Avg. schools applied to per student<br>(up from 4.6 a decade ago)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number green">~60%</div>
+    <div class="stat-label">Drop in avg. top-10 acceptance rate<br>(16% in 2006 → 6.4% today)</div>
+  </div>
+</div>
+
+<div class="narrative">
+  <p>College admissions has become an <b>arms race</b>. Students are submitting more applications
+  than ever — not because they've found more schools that fit them, but because they're <b>shotgunning</b>:
+  blasting applications at every "prestigious" name hoping something sticks.</p>
+  <p style="margin-top:12px;">The data tells a clear story: <b>more applications, lower acceptance rates, more anxiety —
+  and no better outcomes for students finding where they actually belong.</b></p>
+</div>
+
+<hr>
+
+<!-- ============ CHART 1: APPS PER STUDENT ============ -->
+<h2>📊 Students Are Applying to More Schools Every Year</h2>
+<div class="chart-container">
+  <div id="chart-apps-per-student"></div>
+</div>
+
+<hr>
+
+<!-- ============ CHART 2: APPLICATION GROWTH BAR CHART ============ -->
+<h2>🚀 Application Volumes Have Exploded</h2>
+<p class="chart-description">Every school in our dataset has seen massive application growth. Many have <b>doubled or tripled</b> their applicant pools in just 10 years.</p>
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot" style="background:#e74c3c;"></span> Elite Private</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#f39c12;"></span> Selective Private</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#58a6ff;"></span> Flagship Public</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#484f58;"></span> ~2014 Baseline</div>
+</div>
+<div class="chart-container">
+  <div id="chart-growth-bar"></div>
+</div>
+
+<hr>
+
+<!-- ============ CHART 3: ACCEPTANCE RATE DECLINE ============ -->
+<h2>📉 Acceptance Rates Are Plummeting</h2>
+<p class="chart-description">As applications surge but seat counts stay flat, getting in becomes harder — even at schools that were once relatively accessible.</p>
+<div class="chart-container">
+  <div id="chart-slope"></div>
+</div>
+
+<hr>
+
+<!-- ============ CHART 4: SCATTER ============ -->
+<h2>🎯 Who Got Hit Hardest?</h2>
+<p class="chart-description">Schools with the biggest jump in applications saw the steepest drops in acceptance rates. Bubble size = total 2024 applications.</p>
+<div class="chart-container">
+  <div id="chart-scatter"></div>
+</div>
+
+<hr>
+
+<!-- ============ DATA TABLE ============ -->
+<h2>📋 Full Data: ~2014 vs ~2024</h2>
+<div style="max-height: 600px; overflow-y: auto; border: 1px solid #30363d; border-radius: 12px;">
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>School</th>
+        <th>Type</th>
+        <th>Apps ~2014</th>
+        <th>Apps ~2024</th>
+        <th>Growth</th>
+        <th>Rate 2014</th>
+        <th>Rate 2024</th>
+        <th>Rate Drop</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ============ SOLUTION ============ -->
+<div class="solution-box">
+  <h2>💡 So What's the Solution?</h2>
+  <div class="narrative" style="margin:0;">
+    <p>The current system rewards <b>volume over fit</b>. Students apply to 10, 15, even 20 schools —
+    not because those schools match their values, but because rankings told them to.</p>
+    <p style="margin-top:12px;">This creates a vicious cycle:</p>
+    <ul>
+      <li>📈 More applications → lower acceptance rates</li>
+      <li>📉 Lower acceptance rates → more anxiety → even more "safety" applications</li>
+      <li>🔄 Repeat every year, with rates getting lower and stress getting higher</li>
+    </ul>
+    <p style="margin-top:12px;"><b>College Culture Matcher</b> breaks this cycle by helping students find schools
+    that actually fit their personality, values, and lifestyle — not just their GPA bracket.
+    When you know which schools match your <i>culture</i>, you don't need to apply to 20 schools.
+    You need <b>5 good ones</b>.</p>
+    <p style="margin-top:15px; font-size: 1.3rem;"><b>Better matches. Fewer applications. Less stress. More belonging.</b></p>
+  </div>
+</div>
+
+<p class="source-note">Data compiled from Common App End-of-Season Reports (2013–2025), IPEDS, university admissions offices, IvyCoach, CollegeTransitions, Spark Admissions, and institutional Common Data Sets.<br>Built for <b>Bama Builds Hackathon</b> — Data Science Track.</p>
+
+<!-- ============ ALL CHART SCRIPTS ============ -->
+<script>
+// ---- DATA ----
+const appsPerStudent = {
+  years: ["2013-14","2014-15","2015-16","2016-17","2017-18","2018-19","2019-20","2020-21","2021-22","2022-23","2023-24","2024-25"],
+  values: [4.63, 4.72, 4.88, 5.01, 5.18, 5.32, 5.48, 5.62, 6.22, 6.41, 6.65, 6.80]
+};
+
+const schools = [
+  {s:"Harvard",        t:"Elite Private",     a14:34295,  a24:54008,  r14:5.9,  r24:3.6},
+  {s:"Yale",           t:"Elite Private",     a14:30932,  a24:57000,  r14:6.3,  r24:3.7},
+  {s:"Princeton",      t:"Elite Private",     a14:26641,  a24:32836,  r14:7.3,  r24:4.0},
+  {s:"Stanford",       t:"Elite Private",     a14:42167,  a24:56000,  r14:5.1,  r24:3.6},
+  {s:"MIT",            t:"Elite Private",     a14:18357,  a24:26000,  r14:7.7,  r24:4.0},
+  {s:"Duke",           t:"Elite Private",     a14:32506,  a24:50927,  r14:11.0, r24:4.8},
+  {s:"Northwestern",   t:"Elite Private",     a14:32500,  a24:53000,  r14:13.1, r24:7.0},
+  {s:"U. of Chicago",  t:"Elite Private",     a14:30369,  a24:38800,  r14:8.8,  r24:5.2},
+  {s:"Rice",           t:"Elite Private",     a14:16500,  a24:36777,  r14:15.1, r24:7.8},
+  {s:"Notre Dame",     t:"Elite Private",     a14:17600,  a24:35401,  r14:21.2, r24:9.0},
+  {s:"Vanderbilt",     t:"Selective Private",  a14:28700,  a24:47000,  r14:11.6, r24:5.6},
+  {s:"Georgetown",     t:"Selective Private",  a14:20500,  a24:26841,  r14:17.0, r24:12.0},
+  {s:"Emory",          t:"Selective Private",  a14:18500,  a24:37855,  r14:25.4, r24:14.5},
+  {s:"Wake Forest",    t:"Selective Private",  a14:10800,  a24:20000,  r14:33.4, r24:21.5},
+  {s:"Tulane",         t:"Selective Private",  a14:30000,  a24:32609,  r14:26.0, r24:14.0},
+  {s:"NYU",            t:"Selective Private",  a14:52727,  a24:120000, r14:32.0, r24:7.7},
+  {s:"Boston Univ.",   t:"Selective Private",  a14:55000,  a24:78000,  r14:34.5, r24:11.0},
+  {s:"USC",            t:"Selective Private",  a14:51800,  a24:83488,  r14:17.8, r24:10.4},
+  {s:"U. of Alabama",  t:"Flagship Public",   a14:32000,  a24:56795,  r14:57.0, r24:77.0},
+  {s:"Auburn",         t:"Flagship Public",   a14:19000,  a24:55056,  r14:83.0, r24:45.0},
+  {s:"U. of Florida",  t:"Flagship Public",   a14:29000,  a24:65375,  r14:47.0, r24:23.0},
+  {s:"U. of Georgia",  t:"Flagship Public",   a14:21000,  a24:47850,  r14:53.0, r24:39.0},
+  {s:"Ohio State",     t:"Flagship Public",   a14:40000,  a24:72800,  r14:62.0, r24:53.0},
+  {s:"Penn State",     t:"Flagship Public",   a14:52000,  a24:88478,  r14:56.0, r24:54.0},
+  {s:"U. of Michigan", t:"Flagship Public",   a14:46000,  a24:98310,  r14:32.2, r24:15.6},
+  {s:"UCLA",           t:"Flagship Public",   a14:92000,  a24:145086, r14:18.0, r24:8.6},
+  {s:"UC Berkeley",    t:"Flagship Public",   a14:78000,  a24:126796, r14:16.9, r24:11.4},
+  {s:"Georgia Tech",   t:"Flagship Public",   a14:28000,  a24:66895,  r14:32.2, r24:12.7},
+  {s:"Virginia Tech",  t:"Flagship Public",   a14:22000,  a24:57622,  r14:70.0, r24:55.0},
+  {s:"Clemson",        t:"Flagship Public",   a14:20000,  a24:61517,  r14:51.0, r24:38.0},
+  {s:"Purdue",         t:"Flagship Public",   a14:40000,  a24:78526,  r14:60.0, r24:50.0},
+  {s:"Texas A&M",      t:"Flagship Public",   a14:34000,  a24:54905,  r14:68.0, r24:57.0},
+  {s:"U. of Wisconsin",t:"Flagship Public",   a14:32000,  a24:60000,  r14:50.0, r24:43.0},
+  {s:"U. of Illinois", t:"Flagship Public",   a14:38000,  a24:67000,  r14:59.0, r24:43.0},
+  {s:"U. of Washington",t:"Flagship Public",  a14:35000,  a24:58000,  r14:53.0, r24:41.0},
+  {s:"Florida State",  t:"Flagship Public",   a14:30000,  a24:70000,  r14:51.0, r24:24.0},
+];
+
+// Compute derived fields
+schools.forEach(d => {
+  d.growth = Math.round((d.a24 - d.a14) / d.a14 * 100);
+  d.rateDrop = +(d.r14 - d.r24).toFixed(1);
+});
+
+const typeColors = {
+  "Elite Private": "#e74c3c",
+  "Selective Private": "#f39c12",
+  "Flagship Public": "#58a6ff"
+};
+
+const darkLayout = {
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor: '#0d1117',
+  font: { family: 'Inter, Arial, sans-serif', color: '#c9d1d9' },
+  xaxis: { gridcolor: '#21262d', zerolinecolor: '#30363d' },
+  yaxis: { gridcolor: '#21262d', zerolinecolor: '#30363d' },
+};
+
+// ---- CHART 1: APPS PER STUDENT LINE ----
+Plotly.newPlot('chart-apps-per-student', [{
+  x: appsPerStudent.years,
+  y: appsPerStudent.values,
+  mode: 'lines+markers',
+  line: { color: '#e74c3c', width: 3 },
+  marker: { size: 10, color: '#e74c3c' },
+  fill: 'tozeroy',
+  fillcolor: 'rgba(231,76,60,0.1)',
+}], {
+  ...darkLayout,
+  height: 400,
+  margin: { l: 60, r: 30, t: 30, b: 50 },
+  yaxis: { ...darkLayout.yaxis, range: [4, 7.5], title: { text: 'Avg. Applications Per Student', font: {size: 13} } },
+  xaxis: { ...darkLayout.xaxis, title: '' },
+  annotations: [
+    { x: '2019-20', y: 5.48, text: 'COVID / Test-Optional<br>policies begin →', showarrow: true, arrowhead: 2, arrowcolor: '#8b949e', ax: -90, ay: -50, font: { size: 11, color: '#8b949e' } },
+    { x: '2024-25', y: 6.80, text: '<b>6.8 apps/student</b>', showarrow: true, arrowhead: 2, ax: -10, ay: -45, font: { size: 14, color: '#e74c3c' } },
+    { x: '2013-14', y: 4.63, text: '<b>4.6</b>', showarrow: true, arrowhead: 2, ax: 10, ay: -35, font: { size: 13, color: '#f39c12' } }
+  ]
+}, { displayModeBar: false });
+
+// ---- CHART 2: GROWTH BAR CHART ----
+const sorted = [...schools].sort((a,b) => a.growth - b.growth);
+Plotly.newPlot('chart-growth-bar', [
+  {
+    y: sorted.map(d=>d.s),
+    x: sorted.map(d=>d.a14),
+    type: 'bar',
+    orientation: 'h',
+    name: '~2014 Applications',
+    marker: { color: '#484f58' },
+    text: sorted.map(d=> (d.a14/1000).toFixed(0)+'k'),
+    textposition: 'inside',
+    textfont: { size: 8, color: '#c9d1d9' },
+  },
+  {
+    y: sorted.map(d=>d.s),
+    x: sorted.map(d=>d.a24),
+    type: 'bar',
+    orientation: 'h',
+    name: '~2024 Applications',
+    marker: { color: sorted.map(d=>typeColors[d.t]) },
+    text: sorted.map(d=> (d.a24/1000).toFixed(0)+'k (+'+d.growth+'%)'),
+    textposition: 'inside',
+    textfont: { size: 8, color: '#ffffff' },
+  }
+], {
+  ...darkLayout,
+  barmode: 'overlay',
+  height: 750,
+  margin: { l: 110, r: 20, t: 10, b: 40 },
+  bargap: 0.15,
+  xaxis: { ...darkLayout.xaxis, title: { text: 'Total Applications Received', font: {size: 11} } },
+  yaxis: { ...darkLayout.yaxis, automargin: true, tickfont: { size: 10 } },
+  legend: { orientation: 'h', y: 1.02, x: 0.5, xanchor: 'center', font: { size: 11 } },
+  showlegend: true,
+}, { displayModeBar: false });
+
+// ---- CHART 3: SLOPE CHART (ACCEPTANCE RATE DECLINE) ----
+const slopeData = schools.filter(d => d.rateDrop > 1).sort((a,b) => b.rateDrop - a.rateDrop).slice(0, 25);
+const slopeTraces = slopeData.map(d => ({
+  x: ['2014', '2024'],
+  y: [d.r14, d.r24],
+  mode: 'lines+markers+text',
+  line: { color: typeColors[d.t], width: 2 },
+  marker: { size: 7 },
+  text: [d.r14.toFixed(0)+'%', d.r24.toFixed(1)+'%'],
+  textposition: ['middle left', 'middle right'],
+  textfont: { size: 9, color: '#8b949e' },
+  name: d.s,
+  hovertemplate: `<b>${d.s}</b><br>2014: ${d.r14}%<br>2024: ${d.r24}%<br>Drop: ${d.rateDrop} pts<extra></extra>`,
+  showlegend: false,
+}));
+Plotly.newPlot('chart-slope', slopeTraces, {
+  ...darkLayout,
+  height: 700,
+  margin: { l: 60, r: 60, t: 40, b: 40 },
+  xaxis: { ...darkLayout.xaxis, tickvals: ['2014','2024'], tickfont: { size: 16, color: '#ffffff' } },
+  yaxis: { ...darkLayout.yaxis, title: { text: 'Acceptance Rate (%)', font: {size: 12} }, range: [0, 90] },
+  annotations: slopeData.filter(d => d.rateDrop > 15 || d.growth > 100).map(d => ({
+    x: '2024', y: d.r24,
+    text: '<b>'+d.s+'</b>',
+    showarrow: true, arrowhead: 2, arrowcolor: '#484f58',
+    ax: 70, ay: 0,
+    font: { size: 10, color: typeColors[d.t] },
+  })),
+}, { displayModeBar: false });
+
+// ---- CHART 4: SCATTER ----
+const scatterByType = {};
+schools.forEach(d => {
+  if (!scatterByType[d.t]) scatterByType[d.t] = { x:[], y:[], text:[], size:[] };
+  if (d.rateDrop > 0) {
+    scatterByType[d.t].x.push(d.growth);
+    scatterByType[d.t].y.push(d.rateDrop);
+    scatterByType[d.t].text.push(d.s+'<br>Apps: '+(d.a24/1000).toFixed(0)+'k<br>Growth: +'+d.growth+'%<br>Rate drop: '+d.rateDrop+' pts');
+    scatterByType[d.t].size.push(Math.max(8, Math.sqrt(d.a24/1000)*4));
+  }
+});
+const scatterTraces = Object.keys(scatterByType).map(t => ({
+  x: scatterByType[t].x,
+  y: scatterByType[t].y,
+  text: scatterByType[t].text,
+  mode: 'markers',
+  marker: { size: scatterByType[t].size, color: typeColors[t], opacity: 0.8, line: { width: 1, color: '#21262d' } },
+  name: t,
+  hovertemplate: '%{text}<extra></extra>',
+}));
+// Add annotations for outliers
+const outlierAnnotations = schools.filter(d => d.growth > 120 && d.rateDrop > 0).map(d => ({
+  x: d.growth, y: d.rateDrop,
+  text: '<b>'+d.s+'</b>',
+  showarrow: true, arrowhead: 2, arrowcolor: '#484f58',
+  ax: 35, ay: -25,
+  font: { size: 10, color: '#ffffff' },
+}));
+Plotly.newPlot('chart-scatter', scatterTraces, {
+  ...darkLayout,
+  height: 550,
+  margin: { l: 60, r: 30, t: 30, b: 60 },
+  xaxis: { ...darkLayout.xaxis, title: { text: 'Application Growth (%)', font: {size: 12} } },
+  yaxis: { ...darkLayout.yaxis, title: { text: 'Acceptance Rate Drop (percentage points)', font: {size: 12} } },
+  legend: { font: { size: 12 } },
+  annotations: outlierAnnotations,
+}, { displayModeBar: false });
+
+// ---- DATA TABLE ----
+const tbody = document.getElementById('table-body');
+const tableSorted = [...schools].sort((a,b) => b.growth - a.growth);
+tableSorted.forEach(d => {
+  const growthClass = d.growth > 100 ? 'growth-high' : d.growth > 50 ? 'growth-mid' : 'growth-low';
+  const rateDrop = d.rateDrop > 0 ? '-'+d.rateDrop : '+'+Math.abs(d.rateDrop);
+  tbody.innerHTML += `<tr>
+    <td><b>${d.s}</b></td>
+    <td>${d.t}</td>
+    <td>${d.a14.toLocaleString()}</td>
+    <td>${d.a24.toLocaleString()}</td>
+    <td class="${growthClass}">+${d.growth}%</td>
+    <td>${d.r14}%</td>
+    <td>${d.r24}%</td>
+    <td>${rateDrop}</td>
+  </tr>`;
+});
+</script>
+</body>
+</html>

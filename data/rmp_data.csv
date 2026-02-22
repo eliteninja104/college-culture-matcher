@@ -1,0 +1,59 @@
+school,avg_rating,num_ratings,rmp_city,rmp_state
+University of Alabama,4.3,1036,Tuscaloosa,AL
+Auburn University,4.5,1002,Auburn,AL
+University of Florida,4.3,741,Gainesville,FL
+University of Georgia,4.4,776,Athens,GA
+LSU,4,593,Baton Rouge,LA
+University of Mississippi,4.1000000000000005,234,,
+Mississippi State,4.1000000000000005,316,Starkville,MS
+University of Tennessee,3.6,439,Chattanooga,TN
+Vanderbilt University,4.4,325,Nashville,TN
+University of Kentucky,3.7,888,Lexington,KY
+University of South Carolina,4.1000000000000005,936,Columbia,SC
+University of Arkansas,4.1000000000000005,763,Fayetteville,AR
+Texas A&M,1,1,Beaumont,TX
+University of Missouri,4.1000000000000005,571,Columbia,MO
+University of Texas,4.2,648,Austin,TX
+University of Oklahoma,4.1000000000000005,477,Norman,OK
+UCLA,4.2,197,Los Angeles,CA
+UC Berkeley,4,593,Berkeley,CA
+University of Michigan,4.4,872,Ann Arbor Charter Twp,MI
+University of Virginia,4.2,280,Charlottesville,VA
+UNC Chapel Hill,4.2,533,Chapel Hill,NC
+University of Wisconsin,4.5,96,Madison,WI
+Ohio State University,3.4000000000000004,29,Newark,OH
+Penn State,4.4,1070,State College,PA
+University of Illinois,3.9000000000000004,11,Champaign,IL
+Purdue University,3.7,31,West Lafayette,IN
+Indiana University,4.2,765,Indianapolis,IN
+University of Maryland,3.3000000000000003,529,Baltimore,MD
+University of Washington,3.9000000000000004,797,Seattle,WA
+University of Colorado Boulder,4,636,Boulder,CO
+Arizona State University,3.7,62,Tempe,AZ
+University of Arizona,4,829,Tucson,AZ
+University of Oregon,3.9000000000000004,553,Eugene,OR
+University of Minnesota,3.7,411,Duluth,MN
+Rutgers University,3.1,7,Camden,NJ
+Georgia Tech,4,401,Atlanta,GA
+Virginia Tech,3.1,107,Utica,NY
+NC State,4.2,549,Raleigh,NC
+University of Pittsburgh,3.9000000000000004,713,Pittsburgh,PA
+Florida State University,3.2,37,Panama City,FL
+Clemson University,4.3,880,Clemson,SC
+Stanford University,4.3,111,Palo Alto,CA
+MIT,4,71,Cambridge,MA
+Harvard University,3.2,160,Cambridge,MA
+Yale University,3.9000000000000004,69,New Haven,CT
+Princeton University,4.3,47,Princeton,NJ
+Duke University,4.6000000000000005,359,Durham,NC
+Northwestern University,4,44,Evanston,IL
+University of Chicago,3.6,82,Wheeling,IL
+Rice University,4.1000000000000005,40,Houston,TX
+Notre Dame,4.4,185,Notre Dame,IN
+Boston University,0,0,Boston,MA
+NYU,3.6,3,New York,NY
+USC,0,0,Los Angeles,CA
+Georgetown University,4.1000000000000005,257,Washington,DC
+Emory University,4.2,334,Atlanta,GA
+Wake Forest University,4.3,94,Winston-Salem,NC
+Tulane University,4.1000000000000005,377,New Orleans,LA

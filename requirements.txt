@@ -1,0 +1,8 @@
+streamlit
+RateMyProfessorAPI
+vaderSentiment
+scikit-learn
+plotly
+pandas
+numpy
+requests
